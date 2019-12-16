@@ -9,6 +9,8 @@ class Model extends BaseModel
 {
     public $incrementing = false;
 
+    protected $guarded=[];
+
     public static function boot()
     {
 

@@ -2,6 +2,7 @@
 
 namespace Stream;
 
+use Stream\Channel;
 use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use phpDocumentor\Reflection\Types\Parent_;
@@ -25,6 +26,12 @@ class User extends Authenticatable
     });
 
    }
+
+    public function channel()
+    {
+
+        return $this->hasOne(Channel::class);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -52,4 +59,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    
 }
