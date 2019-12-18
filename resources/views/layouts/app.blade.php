@@ -55,6 +55,14 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    
+                                   @auth
+                                       
+                                     <a class="dropdown-item" href="{{ route('channels.show', auth()->user()->channel->id) }}">
+                                       My channel
+                                    </a>
+
+                                   @endauth
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
@@ -73,8 +81,27 @@
         </nav>
 
         <main class="py-4">
+            <div id="app">
             @yield('content')
+            </div>
         </main>
     </div>
+    <script>
+    
+    window.AuthUser=`{!!auth()->user()!!}`;
+
+    window.__auth=function (){
+
+        try {
+           
+            return JSON.parse(AuthUser);
+
+        } catch (error) {
+
+            console.log(error)
+            return null;
+        }
+    }
+    </script>
 </body>
 </html>
