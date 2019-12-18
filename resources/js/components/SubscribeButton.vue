@@ -1,9 +1,10 @@
 <template>
     <div class="text-center">
-                        <button class="btn btn-dark" @click="toggleSubscription">{{owner?'' :subscribed ?'Unsubscribe':'Subscribe'}} {{subscriptions.length}} {{owner?'subscribers': ''}} </button>
+                        <button class="btn btn-dark" @click="toggleSubscription">{{owner?'' :subscribed ?'Unsubscribe':'Subscribe'}} {{subCount}} {{owner?'subscribers': ''}} </button>
                     </div>
 </template>
 <script>
+import numeral from 'numeral'
 export default {
     props:['subscriptions', 'channel'],
 
@@ -30,6 +31,11 @@ export default {
             if (__auth() && this.channel.user_id===__auth().id) return true;
 
             return false;
+        },
+
+        subCount(){
+
+            return numeral(this.subscriptions.length).format('0a')
         }
     },
 }
