@@ -46,7 +46,7 @@
 
                     <div id="app">
 
-                    <subscription-button :subscriptions="{{$channel->subscriptions}}" :channel="{{$channel}}"></subscription-button>
+                    <subscription-button :initialsubscriptions="{{$channel->subscriptions}}" :channel="{{$channel}}"></subscription-button>
                     </div>
                 </div>
                @if ($channel->authU())

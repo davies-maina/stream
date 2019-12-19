@@ -1840,6 +1840,14 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var numeral__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! numeral */ "./node_modules/numeral/numeral.js");
 /* harmony import */ var numeral__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(numeral__WEBPACK_IMPORTED_MODULE_0__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 //
 //
 //
@@ -1847,20 +1855,41 @@ __webpack_require__.r(__webpack_exports__);
 //
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['subscriptions', 'channel'],
+  props: ['initialsubscriptions', 'channel'],
+  data: function data() {
+    return {
+      subscriptions: this.initialsubscriptions
+    };
+  },
   methods: {
     toggleSubscription: function toggleSubscription() {
-      if (!__auth() || this.channel.user_id === __auth().id) {
+      var _this = this;
+
+      if (!__auth() || this.channel.user_id === !__auth().id) {
         alert('log in');
+      }
+
+      if (this.owner) {
+        alert('you cant subscribe to your channel');
+      }
+
+      if (this.subscribed) {
+        axios["delete"]("/channels/".concat(this.channel.id, "/subscriptions/").concat(this.subscription.id)).then(function () {
+          _this.subscriptions = _this.subscriptions.filter(function (s) {
+            return s.id !== _this.subscription.id;
+          });
+        });
+      } else {
+        axios.post("/channels/".concat(this.channel.id, "/subscriptions")).then(function (res) {
+          _this.subscriptions = [].concat(_toConsumableArray(_this.subscriptions), [res.data]);
+        });
       }
     }
   },
   computed: {
     subscribed: function subscribed() {
       if (!__auth()) return false;
-      return !!this.subscriptions.find(function (subscription) {
-        return subscription.user_id === __auth().id;
-      });
+      return !!this.subscription;
     },
     owner: function owner() {
       if (__auth() && this.channel.user_id === __auth().id) return true;
@@ -1868,6 +1897,12 @@ __webpack_require__.r(__webpack_exports__);
     },
     subCount: function subCount() {
       return numeral__WEBPACK_IMPORTED_MODULE_0___default()(this.subscriptions.length).format('0a');
+    },
+    subscription: function subscription() {
+      if (!__auth()) return null;
+      return this.subscriptions.find(function (subscription) {
+        return subscription.user_id === __auth().id;
+      });
     }
   }
 });
