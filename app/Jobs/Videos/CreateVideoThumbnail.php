@@ -3,22 +3,20 @@
 namespace Stream\Jobs\Videos;
 
 use Stream\Video;
-
-
-use FFMpeg\Format\Video\X264;
 use Illuminate\Bus\Queueable;
-use Pbmedia\LaravelFFMpeg\FFMpegFacade as FFMpeg;
-
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Pbmedia\LaravelFFMpeg\FFMpegFacade as FFMpeg;
 
-class ConvertForStreaming implements ShouldQueue
+class CreateVideoThumbnail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $video;
+
     /**
      * Create a new job instance.
      *
@@ -36,24 +34,16 @@ class ConvertForStreaming implements ShouldQueue
      */
     public function handle()
     {
-        $low = (new X264('aac'))->setKiloBitrate(100);
-        $mid = (new X264('aac'))->setKiloBitrate(250);
-        $high = (new X264('aac'))->setKiloBitrate(500);
         FFMpeg::fromDisk('local')
             ->open($this->video->path)
-            ->exportForHLS()
-            ->onProgress(function($percentage){
-                $this->video->update([
+            ->getFrameFromSeconds(1)
+            ->export()
+            ->toDisk('local')
+            ->save("public/thumbnails/{$this->video->id}.png");
 
-                    'percentage'=>$percentage
-                ]);
+            $this->video->update([
+                'thumbnail'=>Storage::url("thumbnails/{$this->video->id}.png")
 
-            })
-            ->addFormat($low)
-            ->addFormat($mid)
-            ->addFormat($high)
-            ->save("public/videos/{$this->video->id}/{$this->video->id}.m3u8");
-    
-        
+            ]);
     }
 }

@@ -5,6 +5,7 @@ namespace Stream\Http\Controllers;
 use Stream\Channel;
 use Illuminate\Http\Request;
 use Stream\Jobs\Videos\ConvertForStreaming;
+use Stream\Jobs\Videos\CreateVideoThumbnail;
 
 class UploadVideoController extends Controller
 {
@@ -25,6 +26,8 @@ class UploadVideoController extends Controller
 
 
         ]);
+
+        $this->dispatch(new CreateVideoThumbnail($video));
 
         $this->dispatch(new ConvertForStreaming($video));
 
