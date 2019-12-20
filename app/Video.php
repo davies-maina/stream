@@ -2,9 +2,13 @@
 
 namespace Stream;
 
-use Illuminate\Database\Eloquent\Model;
+use Stream\Channel;
+
 
 class Video extends Model
 {
-    //
+    public function channel(){
+
+        return $this->belongsTo(Channel::class);
+    }
 }

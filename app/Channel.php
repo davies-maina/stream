@@ -3,6 +3,7 @@
 namespace Stream;
 use Stream\User;
 
+use Stream\Video;
 use Stream\Subscription;
 use Spatie\MediaLibrary\Models\Media;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
@@ -49,5 +50,10 @@ class Channel extends Model implements HasMedia
     public function subscriptions(){
 
         return $this->hasMany(Subscription::class);
+    }
+
+    public function videos(){
+
+        return $this->hasMany(Video::class);
     }
 }

@@ -1876,16 +1876,34 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['channel'],
   data: function data() {
     return {
-      selected: false
+      selected: false,
+      videos: [],
+      progress: {}
     };
   },
   methods: {
     uploadVideo: function uploadVideo() {
+      var _this = this;
+
       this.selected = true;
       var videos = this.$refs.videos.files;
-      console.log(videos);
+      this.videos = Array.from(videos);
+      var vidUploads = this.videos.map(function (video) {
+        var form = new FormData();
+        _this.progress[video.name] = 0;
+        form.append('video', video);
+        form.append('title', video.name);
+        return axios.post("/channels/".concat(_this.channel.id, "/videos"), form, {
+          onUploadProgress: function onUploadProgress(event) {
+            _this.progress[video.name] = Math.ceil(event.loaded / event.total * 100);
+
+            _this.$forceUpdate();
+          }
+        });
+      });
     }
   }
 });
@@ -21284,7 +21302,7 @@ var render = function() {
             _c("input", {
               ref: "videos",
               staticStyle: { display: "none" },
-              attrs: { type: "file", id: "videoFiles" },
+              attrs: { type: "file", multiple: "", id: "videoFiles" },
               on: { change: _vm.uploadVideo }
             }),
             _vm._v(" "),
@@ -21300,7 +21318,42 @@ var render = function() {
             })
           ]
         )
-      : _c("div", { staticClass: "card p-3" }, [_vm._m(0)])
+      : _c(
+          "div",
+          { staticClass: "card p-3" },
+          _vm._l(_vm.videos, function(video) {
+            return _c("div", { key: video.title, staticClass: "my-4" }, [
+              _c("div", { staticClass: "progress mb-3" }, [
+                _c("div", {
+                  staticClass:
+                    "progress-bar progress-bar-striped progress-bar-animated ",
+                  style: { width: _vm.progress[video.name] + "%" },
+                  attrs: {
+                    role: "progressbar",
+                    "aria-valuenow": "50",
+                    "aria-valuemin": "0",
+                    "aria-valuemax": "100"
+                  }
+                })
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "row" }, [
+                _vm._m(0, true),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-md-4" }, [
+                  _c("h4", { staticClass: "text-center" }, [
+                    _vm._v(
+                      "\n                                   " +
+                        _vm._s(video.name) +
+                        "\n                                "
+                    )
+                  ])
+                ])
+              ])
+            ])
+          }),
+          0
+        )
   ])
 }
 var staticRenderFns = [
@@ -21308,50 +21361,24 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "my-4" }, [
-      _c("div", { staticClass: "progress mb-3" }, [
-        _c("div", {
-          staticClass:
-            "progress-bar progress-bar-striped progress-bar-animated ",
-          staticStyle: { width: "50%" },
-          attrs: {
-            role: "progressbar",
-            "aria-valuenow": "50",
-            "aria-valuemin": "0",
-            "aria-valuemax": "100"
+    return _c("div", { staticClass: "col-md-4" }, [
+      _c(
+        "div",
+        {
+          staticClass: "d-flex justify-content-center align-items-center",
+          staticStyle: {
+            height: "180px",
+            color: "white",
+            "font-size": "18px",
+            background: "#808080"
           }
-        })
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "row" }, [
-        _c("div", { staticClass: "col-md-4" }, [
-          _c(
-            "div",
-            {
-              staticClass: "d-flex justify-content-center align-items-center",
-              staticStyle: {
-                height: "180px",
-                color: "white",
-                "font-size": "18px",
-                background: "#808080"
-              }
-            },
-            [
-              _vm._v(
-                "\n                                        Loading thumbnail ...\n                                "
-              )
-            ]
+        },
+        [
+          _vm._v(
+            "\n                                        Loading thumbnail ...\n                                "
           )
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "col-md-4" }, [
-          _c("h4", { staticClass: "text-center" }, [
-            _vm._v(
-              "\n                                    My Awesome video\n                                "
-            )
-          ])
-        ])
-      ])
+        ]
+      )
     ])
   }
 ]
