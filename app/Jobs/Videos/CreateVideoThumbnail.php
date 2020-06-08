@@ -24,7 +24,7 @@ class CreateVideoThumbnail implements ShouldQueue
      */
     public function __construct(Video $video)
     {
-        $this->video=$video;
+        $this->video = $video;
     }
 
     /**
@@ -41,9 +41,9 @@ class CreateVideoThumbnail implements ShouldQueue
             ->toDisk('local')
             ->save("public/thumbnails/{$this->video->id}.png");
 
-            $this->video->update([
-                'thumbnail'=>Storage::url("thumbnails/{$this->video->id}.png")
+        $this->video->update([
+            'thumbnail' => Storage::url("thumbnails/{$this->video->id}.png")
 
-            ]);
+        ]);
     }
 }

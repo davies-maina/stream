@@ -82,11 +82,19 @@ class ChannelController extends Controller
 
         $channel->update([
 
-            'name'=>$request->name,
+            'name' => $request->name,
             'description' => $request->description,
         ]);
-
         return redirect()->back();
+
+        /* dd($channel->image());
+        die; */
+
+        /*  $channel->update([
+
+            'name' => $request->name,
+            'description' => $request->description,
+        ]); */
     }
 
     /**

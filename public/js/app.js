@@ -1838,6 +1838,56 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -1876,12 +1926,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['channel'],
+  props: ["channel"],
   data: function data() {
     return {
       selected: false,
       videos: [],
-      progress: {}
+      progress: {},
+      uploads: [],
+      intervals: {}
     };
   },
   methods: {
@@ -1889,19 +1941,44 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       this.selected = true;
-      var videos = this.$refs.videos.files;
-      this.videos = Array.from(videos);
-      var vidUploads = this.videos.map(function (video) {
+      this.videos = Array.from(this.$refs.videos.files);
+      var uploaders = this.videos.map(function (video) {
         var form = new FormData();
         _this.progress[video.name] = 0;
-        form.append('video', video);
-        form.append('title', video.name);
+        form.append("video", video);
+        form.append("title", video.name);
         return axios.post("/channels/".concat(_this.channel.id, "/videos"), form, {
           onUploadProgress: function onUploadProgress(event) {
             _this.progress[video.name] = Math.ceil(event.loaded / event.total * 100);
 
             _this.$forceUpdate();
           }
+        }).then(function (_ref) {
+          var data = _ref.data;
+          _this.uploads = [].concat(_toConsumableArray(_this.uploads), [data]);
+        });
+      });
+      axios.all(uploaders).then(function () {
+        _this.videos = _this.uploads;
+
+        _this.videos.forEach(function (video) {
+          _this.intervals[video.id] = setInterval(function () {
+            axios.get("/videos/".concat(video.id)).then(function (_ref2) {
+              var data = _ref2.data;
+
+              if (data.percentage === 100) {
+                clearInterval(_this.intervals[video.id]);
+              }
+
+              _this.videos = _this.videos.map(function (v) {
+                if (v.id === data.id) {
+                  return data;
+                }
+
+                return v;
+              });
+            });
+          }, 3000);
         });
       });
     }
@@ -1934,9 +2011,25 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['initialsubscriptions', 'channel'],
+  props: ["initialsubscriptions", "channel"],
   data: function data() {
     return {
       subscriptions: this.initialsubscriptions
@@ -1947,11 +2040,11 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
       var _this = this;
 
       if (!__auth() || this.channel.user_id === !__auth().id) {
-        alert('log in');
+        alert("log in");
       }
 
       if (this.owner) {
-        alert('you cant subscribe to your channel');
+        alert("you cant subscribe to your channel");
       }
 
       if (this.subscribed) {
@@ -1970,14 +2063,20 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
   computed: {
     subscribed: function subscribed() {
       if (!__auth()) return false;
-      return !!this.subscription;
+      /* return !!this.subscriptions.find(
+          subscription => subscription.user_id === __auth().id
+      ); */
+
+      /* OR*/
+
+      return this.subscription;
     },
     owner: function owner() {
       if (__auth() && this.channel.user_id === __auth().id) return true;
       return false;
     },
     subCount: function subCount() {
-      return numeral__WEBPACK_IMPORTED_MODULE_0___default()(this.subscriptions.length).format('0a');
+      return numeral__WEBPACK_IMPORTED_MODULE_0___default()(this.subscriptions.length).format("0a");
     },
     subscription: function subscription() {
       if (!__auth()) return null;
@@ -21324,30 +21423,84 @@ var render = function() {
           _vm._l(_vm.videos, function(video) {
             return _c("div", { key: video.title, staticClass: "my-4" }, [
               _c("div", { staticClass: "progress mb-3" }, [
-                _c("div", {
-                  staticClass:
-                    "progress-bar progress-bar-striped progress-bar-animated ",
-                  style: { width: _vm.progress[video.name] + "%" },
-                  attrs: {
-                    role: "progressbar",
-                    "aria-valuenow": "50",
-                    "aria-valuemin": "0",
-                    "aria-valuemax": "100"
-                  }
-                })
+                _c(
+                  "div",
+                  {
+                    staticClass:
+                      "progress-bar progress-bar-striped progress-bar-animated ",
+                    style: {
+                      width:
+                        (video.percentage || _vm.progress[video.name]) + "%"
+                    },
+                    attrs: {
+                      role: "progressbar",
+                      "aria-valuenow": "50",
+                      "aria-valuemin": "0",
+                      "aria-valuemax": "100"
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n                    " +
+                        _vm._s(
+                          video.percentage
+                            ? video.percentage === 100
+                              ? "processing complete"
+                              : "Processing"
+                            : "uploading"
+                        ) +
+                        "\n                "
+                    )
+                  ]
+                )
               ]),
               _vm._v(" "),
               _c("div", { staticClass: "row" }, [
-                _vm._m(0, true),
+                _c("div", { staticClass: "col-md-4" }, [
+                  !video.thumbnail
+                    ? _c(
+                        "div",
+                        {
+                          staticClass:
+                            "d-flex justify-content-center align-items-center",
+                          staticStyle: {
+                            height: "180px",
+                            color: "white",
+                            "font-size": "18px",
+                            background: "#808080"
+                          }
+                        },
+                        [
+                          _vm._v(
+                            "\n                        Loading thumbnail ...\n                    "
+                          )
+                        ]
+                      )
+                    : _c("img", {
+                        staticStyle: { width: "100%" },
+                        attrs: { src: video.thumbnail, alt: "Video thumbnail" }
+                      })
+                ]),
                 _vm._v(" "),
                 _c("div", { staticClass: "col-md-4" }, [
-                  _c("h4", { staticClass: "text-center" }, [
-                    _vm._v(
-                      "\n                                   " +
-                        _vm._s(video.name) +
-                        "\n                                "
-                    )
-                  ])
+                  video.percentage && video.percentage === 100
+                    ? _c(
+                        "a",
+                        {
+                          attrs: {
+                            href: "/videos/" + video.id,
+                            target: "_blank"
+                          }
+                        },
+                        [_vm._v(_vm._s(video.title))]
+                      )
+                    : _c("h4", { staticClass: "text-center" }, [
+                        _vm._v(
+                          "\n                        " +
+                            _vm._s(video.title || video.name) +
+                            "\n                    "
+                        )
+                      ])
                 ])
               ])
             ])
@@ -21356,32 +21509,7 @@ var render = function() {
         )
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-4" }, [
-      _c(
-        "div",
-        {
-          staticClass: "d-flex justify-content-center align-items-center",
-          staticStyle: {
-            height: "180px",
-            color: "white",
-            "font-size": "18px",
-            background: "#808080"
-          }
-        },
-        [
-          _vm._v(
-            "\n                                        Loading thumbnail ...\n                                "
-          )
-        ]
-      )
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -21404,22 +21532,52 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "text-center" }, [
-    _c(
-      "button",
-      { staticClass: "btn btn-dark", on: { click: _vm.toggleSubscription } },
-      [
-        _vm._v(
-          _vm._s(
-            _vm.owner ? "" : _vm.subscribed ? "Unsubscribe" : "Subscribe"
-          ) +
-            " " +
-            _vm._s(_vm.subCount) +
-            " " +
-            _vm._s(_vm.owner ? "subscribers" : "") +
-            " "
-        )
-      ]
-    )
+    _vm.owner
+      ? _c("div", [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-dark",
+              attrs: { disabled: "" },
+              on: { click: _vm.toggleSubscription }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(_vm.subCount) +
+                  " " +
+                  _vm._s(_vm.owner ? "subscribers" : "") +
+                  "\n        "
+              )
+            ]
+          )
+        ])
+      : _c("div", [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-dark",
+              on: { click: _vm.toggleSubscription }
+            },
+            [
+              _vm._v(
+                "\n            " +
+                  _vm._s(
+                    _vm.owner
+                      ? ""
+                      : _vm.subscribed
+                      ? "Unsubscribe"
+                      : "Subscribe"
+                  ) +
+                  "\n            " +
+                  _vm._s(_vm.subCount) +
+                  " " +
+                  _vm._s(_vm.owner ? "subscribers" : "") +
+                  "\n        "
+              )
+            ]
+          )
+        ])
   ])
 }
 var staticRenderFns = []

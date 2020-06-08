@@ -26,7 +26,7 @@ class ConvertForStreaming implements ShouldQueue
      */
     public function __construct(Video $video)
     {
-        $this->video=$video;
+        $this->video = $video;
     }
 
     /**
@@ -42,18 +42,17 @@ class ConvertForStreaming implements ShouldQueue
         FFMpeg::fromDisk('local')
             ->open($this->video->path)
             ->exportForHLS()
-            ->onProgress(function($percentage){
+            ->onProgress(function ($percentage) {
                 $this->video->update([
 
-                    'percentage'=>$percentage
+                    'percentage' => $percentage
                 ]);
-
             })
             ->addFormat($low)
             ->addFormat($mid)
             ->addFormat($high)
-            ->save("public/videos/{$this->video->id}/{$this->video->id}.m3u8");
-    
-        
+            ->save("public/videos/{$this->video->id}/{$this->video->id}.m3u8"); //m3u8 is extension for streamable vids
+
+
     }
 }

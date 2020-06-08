@@ -1,80 +1,147 @@
 <template>
     <div class="col-md-8">
-       
-            <div class="card p-3 d-flex align-items-center justify-content-lg-center" v-if="!selected">
-                 <input type="file" multiple ref="videos" id="videoFiles" style="display:none;" @change="uploadVideo">
+        <div
+            class="card p-3 d-flex align-items-center justify-content-lg-center"
+            v-if="!selected"
+        >
+            <input
+                type="file"
+                multiple
+                ref="videos"
+                id="videoFiles"
+                style="display:none;"
+                @change="uploadVideo"
+            />
 
-                <p class="text-center">Upload video(S)</p>
-                <img src="https://img.icons8.com/dotty/80/000000/upload-to-ftp.png" onclick="document.getElementById('videoFiles').click()">
-            
+            <p class="text-center">Upload video(S)</p>
+            <img
+                src="https://img.icons8.com/dotty/80/000000/upload-to-ftp.png"
+                onclick="document.getElementById('videoFiles').click()"
+            />
         </div>
         <div class="card p-3" v-else>
-        <div class="my-4" v-for="video in videos" :key="video.title">
-                            <div class="progress mb-3" >
-                                <div class="progress-bar progress-bar-striped progress-bar-animated " role="progressbar" :style="{width: `${progress[video.name]}%`}" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="row">
+            <div class="my-4" v-for="video in videos" :key="video.title">
+                <div class="progress mb-3">
+                    <div
+                        class="progress-bar progress-bar-striped progress-bar-animated "
+                        role="progressbar"
+                        :style="{
+                            width: `${video.percentage ||
+                                progress[video.name]}%`
+                        }"
+                        aria-valuenow="50"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    >
+                        {{
+                            video.percentage
+                                ? video.percentage === 100
+                                    ? "processing complete"
+                                    : "Processing"
+                                : "uploading"
+                        }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div
+                            class="d-flex justify-content-center align-items-center"
+                            style="height: 180px; color: white; font-size: 18px; background: #808080;"
+                            v-if="!video.thumbnail"
+                        >
+                            Loading thumbnail ...
+                        </div>
 
-                                <div class="col-md-4">
-                                    <div class="d-flex justify-content-center align-items-center" style="height: 180px; color: white; font-size: 18px; background: #808080;">
-                                            Loading thumbnail ...
-                                    </div>
-                                </div>
+                        <img
+                            v-else
+                            :src="video.thumbnail"
+                            style="width:100%;"
+                            alt="Video thumbnail"
+                        />
+                    </div>
 
-                                <div class="col-md-4">
-                                    <h4 class="text-center">
-                                       {{video.name}}
-                                    </h4>
-
-
-                                </div>
-                            </div>
+                    <div class="col-md-4">
+                        <a
+                            :href="`/videos/${video.id}`"
+                            target="_blank"
+                            v-if="video.percentage && video.percentage === 100"
+                            >{{ video.title }}</a
+                        >
+                        <h4 class="text-center" v-else>
+                            {{ video.title || video.name }}
+                        </h4>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
-       
     </div>
 </template>
 
 <script>
 export default {
-
-    props:['channel'],
+    props: ["channel"],
     data() {
         return {
-            selected:false,
-            videos:[],
+            selected: false,
+            videos: [],
 
-            progress:{}
-        }
+            progress: {},
+
+            uploads: [],
+            intervals: {}
+        };
     },
 
     methods: {
-        uploadVideo(){
+        uploadVideo() {
+            this.selected = true;
+            this.videos = Array.from(this.$refs.videos.files);
 
-            this.selected=true
+            const uploaders = this.videos.map(video => {
+                const form = new FormData();
 
-            const videos=this.$refs.videos.files
-            this.videos=Array.from(videos);
+                this.progress[video.name] = 0;
 
-            const vidUploads=this.videos.map(video=>{
+                form.append("video", video);
+                form.append("title", video.name);
 
-                const form=new FormData();
+                return axios
+                    .post(`/channels/${this.channel.id}/videos`, form, {
+                        onUploadProgress: event => {
+                            this.progress[video.name] = Math.ceil(
+                                (event.loaded / event.total) * 100
+                            );
 
-                this.progress[video.name]=0;
-                form.append('video', video);
-                form.append('title', video.name)
+                            this.$forceUpdate();
+                        }
+                    })
+                    .then(({ data }) => {
+                        this.uploads = [...this.uploads, data];
+                    });
+            });
 
-                return axios.post(`/channels/${this.channel.id}/videos`, form,{
+            axios.all(uploaders).then(() => {
+                this.videos = this.uploads;
 
-                    onUploadProgress:(event)=>{
+                this.videos.forEach(video => {
+                    this.intervals[video.id] = setInterval(() => {
+                        axios.get(`/videos/${video.id}`).then(({ data }) => {
+                            if (data.percentage === 100) {
+                                clearInterval(this.intervals[video.id]);
+                            }
 
-                        this.progress[video.name]=Math.ceil((event.loaded/event.total)*100);
+                            this.videos = this.videos.map(v => {
+                                if (v.id === data.id) {
+                                    return data;
+                                }
 
-                        this.$forceUpdate();
-                    }
-                })
-            })
+                                return v;
+                            });
+                        });
+                    }, 3000);
+                });
+            });
+        }
     }
-}
-}
+};
 </script>

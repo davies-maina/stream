@@ -1,81 +1,94 @@
 <template>
     <div class="text-center">
-                        <button class="btn btn-dark" @click="toggleSubscription">{{owner?'' :subscribed ?'Unsubscribe':'Subscribe'}} {{subCount}} {{owner?'subscribers': ''}} </button>
-                    </div>
+        <!-- <button class="btn btn-dark" @click="toggleSubscription">
+            {{ owner ? "" : subscribed ? "Unsubscribe" : "Subscribe" }}
+            {{ subCount }} {{ owner ? "subscribers" : "" }}
+        </button> -->
+
+        <div v-if="owner">
+            <button class="btn btn-dark" @click="toggleSubscription" disabled>
+                <!-- {{ owner ? "" : subscribed ? "Unsubscribe" : "Subscribe" }} -->
+                {{ subCount }} {{ owner ? "subscribers" : "" }}
+            </button>
+        </div>
+        <div v-else>
+            <button class="btn btn-dark" @click="toggleSubscription">
+                {{ owner ? "" : subscribed ? "Unsubscribe" : "Subscribe" }}
+                {{ subCount }} {{ owner ? "subscribers" : "" }}
+            </button>
+        </div>
+    </div>
 </template>
 <script>
-import numeral from 'numeral'
+import numeral from "numeral";
 export default {
-    props:['initialsubscriptions', 'channel'],
+    props: ["initialsubscriptions", "channel"],
 
     data() {
         return {
-            subscriptions:this.initialsubscriptions
-        }
+            subscriptions: this.initialsubscriptions
+        };
     },
 
     methods: {
-        toggleSubscription(){
-
-            if(!__auth() || this.channel.user_id===!__auth().id){
-
-                alert('log in')
+        toggleSubscription() {
+            if (!__auth() || this.channel.user_id === !__auth().id) {
+                alert("log in");
             }
 
             if (this.owner) {
-                alert('you cant subscribe to your channel')
+                alert("you cant subscribe to your channel");
             }
 
             if (this.subscribed) {
-                axios.delete(`/channels/${this.channel.id}/subscriptions/${this.subscription.id}`)
-                    .then(()=>{
-
-                        this.subscriptions=this.subscriptions.filter(s=>s.id !==this.subscription.id)
-                    })
-                    
-            }
-
-            else {
-
-                axios.post(`/channels/${this.channel.id}/subscriptions`)
-                    .then((res)=>{
-
-                        this.subscriptions=[
-
-                            ...this.subscriptions,
-                            res.data
-                        ]
-                    })
+                axios
+                    .delete(
+                        `/channels/${this.channel.id}/subscriptions/${this.subscription.id}`
+                    )
+                    .then(() => {
+                        this.subscriptions = this.subscriptions.filter(
+                            s => s.id !== this.subscription.id
+                        );
+                    });
+            } else {
+                axios
+                    .post(`/channels/${this.channel.id}/subscriptions`)
+                    .then(res => {
+                        this.subscriptions = [...this.subscriptions, res.data];
+                    });
             }
         }
     },
 
     computed: {
-        subscribed(){
-
+        subscribed() {
             if (!__auth()) return false;
 
-            return !!this.subscription;
+            /* return !!this.subscriptions.find(
+                subscription => subscription.user_id === __auth().id
+            ); */
+
+            /* OR*/
+            return this.subscription;
         },
 
-        owner(){
-
-            if (__auth() && this.channel.user_id===__auth().id) return true;
+        owner() {
+            if (__auth() && this.channel.user_id === __auth().id) return true;
 
             return false;
         },
 
-        subCount(){
-
-            return numeral(this.subscriptions.length).format('0a')
+        subCount() {
+            return numeral(this.subscriptions.length).format("0a");
         },
 
-        subscription(){
+        subscription() {
+            if (!__auth()) return null;
 
-            if(!__auth()) return null;
-
-           return this.subscriptions.find(subscription=>subscription.user_id===__auth().id);
+            return this.subscriptions.find(
+                subscription => subscription.user_id === __auth().id
+            );
         }
-    },
-}
+    }
+};
 </script>
