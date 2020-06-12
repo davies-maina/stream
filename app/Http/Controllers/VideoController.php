@@ -22,4 +22,10 @@ class VideoController extends Controller
         $video->increment('views');
         return response()->json();
     }
+
+    public function updatevideo(Video $video)
+    {
+        $video->update(request()->only(['title', 'description']));
+        return redirect()->back();
+    }
 }

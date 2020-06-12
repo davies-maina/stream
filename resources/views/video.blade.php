@@ -5,7 +5,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-            <div class="card-header">{{$video->title}}</div>
+            @if ($video->canedit())
+            <form action="{{route('updatevideodetails',$video->id)}}" method="POST"> 
+                   @csrf
+                   @method('put')
+            @endif
+                <div class="card-header">{{$video->title}}</div>
 
                 <div class="card-body">
                 <video-data videodata="{{asset(Storage::url('videos/'.$video->id.'/'.$video->id.'.m3u8'))}}"
@@ -13,12 +18,16 @@
                  <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h4 class="mt-3">
-                                {{ $video->title }}
+                                @if ($video->canedit())
+                                    <input type="text" class="form-control" value="{{ $video->title }}" name="title">
+                                @else
+                                    {{ $video->title }}
+                                @endif
                             </h4>
                             {{ $video->views }} {{ str_plural('view', $video->views) }}
                         </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
+                 </div>
+                 <div class="d-flex justify-content-end align-items-center">
                                 <svg class="thumbs-up" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                                 viewBox="0 0 478.2 478.2" style="enable-background:new 0 0 478.2 478.2;" xml:space="preserve">
                                     <g>
@@ -75,6 +84,25 @@
 
                                 11k
                         </div>
+
+                        <div>
+                           @if ($video->canedit())
+                               <div class="form-group">
+                              
+                            <textarea class="form-control" name="description" id="" rows="3">{{$video->description}}</textarea>
+                            </div>
+                            <div>
+                                <button type="submit"  class="btn btn-primary">Update video details</button>
+                            </div>
+                           @else
+                              {{$video->description}} 
+                           @endif
+                        </div>
+
+                        
+            @if ($video->canedit())
+                </form>
+            @endif
                     </div>
 
                     <hr>
