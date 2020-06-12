@@ -6,12 +6,16 @@
 
 <script>
 import VideoPlayer from "./VideoPlayer";
+import videojs from "video.js";
 
 export default {
     props: ["videodata"],
     name: "VideoExample",
     components: {
         VideoPlayer
+    },
+    created() {
+        this.videoData;
     },
 
     data() {
@@ -29,10 +33,6 @@ export default {
         };
     },
 
-    computed: {
-        videoData() {
-            return this.videodata;
-        }
-    }
+    computed: {}
 };
 </script>

@@ -3167,6 +3167,7 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _VideoPlayer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./VideoPlayer */ "./resources/js/components/VideoPlayer.vue");
+/* harmony import */ var video_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! video.js */ "./node_modules/video.js/dist/video.es.js");
 //
 //
 //
@@ -3174,11 +3175,15 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["videodata"],
   name: "VideoExample",
   components: {
     VideoPlayer: _VideoPlayer__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  created: function created() {
+    this.videoData;
   },
   data: function data() {
     return {
@@ -3192,11 +3197,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     };
   },
-  computed: {
-    videoData: function videoData() {
-      return this.videodata;
-    }
-  }
+  computed: {}
 });
 
 /***/ }),
@@ -3220,29 +3221,38 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "VideoPlayer",
-  props: {
-    options: {
-      type: Object,
-      "default": function _default() {
-        return {};
-      }
-    }
-  },
+  props: ["options"],
   data: function data() {
     return {
       player: null
     };
   },
   mounted: function mounted() {
-    this.player = Object(video_js__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.videoPlayer, this.options, function onPlayerReady() {
-      console.log("onPlayerReady", this);
+    var _this = this;
+
+    this.player = Object(video_js__WEBPACK_IMPORTED_MODULE_0__["default"])(this.$refs.videoPlayer, this.options
+    /* function onPlayerReady() {
+        console.log("onPlayerReady", this);
+    } */
+    );
+    var viewsLog = false;
+    this.player.on("timeupdate", function () {
+      var percentageplayed = Math.ceil(_this.player.currentTime() / _this.player.duration() * 100);
+
+      if (percentageplayed > 5 && !viewsLog) {
+        axios.put("/video/" + window.currentvideo).then(function (res) {
+          console.log(res);
+        });
+        viewsLog = true;
+      }
     });
   },
   beforeDestroy: function beforeDestroy() {
     if (this.player) {
       this.player.dispose();
     }
-  }
+  },
+  computed: {}
 });
 
 /***/ }),
