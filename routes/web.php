@@ -35,4 +35,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('channels/{channel}/videos', 'UploadVideoController@index')->name('channels.upload');
     Route::resource('channels/{channel}/subscriptions', 'SubscriptionController')->only(['store', 'destroy']);
+
+    Route::post('/votes/{video}/{type}', 'VoteController@vote');
 });

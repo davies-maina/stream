@@ -13,19 +13,18 @@ class User extends Authenticatable
 {
     use Notifiable;
 
-   public $incrementing=false;
+    public $incrementing = false;
 
-   public static function boot(){
+    public static function boot()
+    {
 
 
-    parent::boot();
+        parent::boot();
 
-    static::creating(function($model){
-        $model->{$model->getKeyName()}= (string) Str::uuid();
-
-    });
-
-   }
+        static::creating(function ($model) {
+            $model->{$model->getKeyName()} = (string) Str::uuid();
+        });
+    }
 
     public function channel()
     {
@@ -60,5 +59,21 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+    public function toggleVote($entity, $type)
+    {
+        $vote = $entity->votes()->where('user_id', $this->id)->first();
+
+        if ($vote) {
+            $vote->update([
+                'type' => $type
+            ]);
+
+            return $vote->refresh();
+        } else {
+            return $entity->votes()->create([
+                'type' => $type,
+                'user_id' => $this->id
+            ]);
+        }
+    }
 }

@@ -9,6 +9,8 @@ Vue.component("video-player", require("./components/VideoPlayer.vue").default);
 
 Vue.component("video-data", require("./components/VideoData.vue").default);
 
+Vue.component("votes", require("./components/Vote.vue").default);
+
 
 const app = new Vue({
     el: '#app',
