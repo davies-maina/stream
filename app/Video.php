@@ -3,6 +3,7 @@
 namespace Stream;
 
 use Stream\Channel;
+use Stream\Comment;
 
 
 class Video extends Model
@@ -23,5 +24,12 @@ class Video extends Model
     {
 
         return $this->morphMany(Vote::class, 'voteable');
+    }
+
+
+    public function comments()
+    {
+
+        return $this->hasMany(Comment::class)->whereNull('comment_id');
     }
 }

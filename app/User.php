@@ -3,6 +3,7 @@
 namespace Stream;
 
 use Stream\Channel;
+use Stream\Comment;
 use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use phpDocumentor\Reflection\Types\Parent_;
@@ -75,5 +76,11 @@ class User extends Authenticatable
                 'user_id' => $this->id
             ]);
         }
+    }
+
+    public function comments()
+    {
+
+        return $this->hasMany(Comment::class);
     }
 }
