@@ -26,4 +26,14 @@ class CommentController extends Controller
 
         return $comment->replies()->paginate(5);
     }
+
+    public function store(Request $request, Video $video)
+    {
+
+        return auth()->user()->comments()->create([
+            'body' => $request->body,
+            'video_id' => $video->id,
+            'comment_id' => $request->comment_id
+        ])->fresh(); //using fresh so that i can also get eager loaded data
+    }
 }

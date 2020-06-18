@@ -40,4 +40,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('channels/{channel}/subscriptions', 'SubscriptionController')->only(['store', 'destroy']);
 
     Route::post('/votes/{entityId}/{type}', 'VoteController@vote');
+
+    Route::post('/comments/{video}', 'CommentController@store');
 });

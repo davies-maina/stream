@@ -11,7 +11,7 @@ use Stream\Video;
 class Comment extends Model
 {
 
-    protected $with = ['user', 'votes']; //eager load user who created comment
+    protected $with = ['user', 'votes', 'replies']; //eager load user who created comment
     protected $appends = ['repliesCount']; //laravel computed properties
     public function video()
     {

@@ -1,38 +1,21 @@
 <template>
     <div class="card mt-5 p-5">
-        <div class="form-inline my-4 w-full">
-            <input type="text" class="form-control form-control-sm w-80" />
+        <div class="form-inline my-4 w-full" v-if="isAuth">
+            <input
+                type="text"
+                v-model="newcomment"
+                class="form-control form-control-sm w-80"
+            />
             <button class="btn btn-sm btn-primary">
-                <small>Add comment</small>
+                <small @click="addComment">Add comment</small>
             </button>
         </div>
-        <div
-            class="media my-3"
+
+        <comment
             v-for="comment in comments.data"
             :key="comment.id"
-        >
-            <avatar
-                :username="comment.user.name"
-                class="mr-3"
-                :size="30"
-            ></avatar>
-
-            <div class="media-body">
-                <h6 class="mt-0">
-                    {{ comment.user.name }}
-                </h6>
-                <small>
-                    {{ comment.body }}
-                </small>
-                <votes
-                    :initialvotes="comment.votes"
-                    :entityid="comment.id"
-                    :entityowner="comment.user.id"
-                ></votes>
-
-                <replies :comment="comment"></replies>
-            </div>
-        </div>
+            :comment="comment"
+        ></comment>
 
         <div class="text-center">
             <button
@@ -48,15 +31,17 @@
 </template>
 
 <script>
-import Avatar from "vue-avatar";
-import replies from "./Replies";
+/* import Avatar from "vue-avatar"; */
+
 import votes from "./Vote";
+import comment from "./Comment";
 export default {
     props: ["video"],
     components: {
-        Avatar,
-        replies,
-        votes
+        /* Avatar, */
+
+        votes,
+        comment
     },
     mounted() {
         this.getComments();
@@ -64,7 +49,8 @@ export default {
     data: () => ({
         comments: {
             data: []
-        }
+        },
+        newcomment: ""
     }),
     methods: {
         getComments() {
@@ -78,6 +64,30 @@ export default {
                 };
                 /* console.log(data); */
             });
+        },
+
+        addComment() {
+            if (!this.newcomment) return;
+
+            axios
+                .post(`/comments/${this.video.id}`, {
+                    body: this.newcomment
+                })
+                .then(({ data }) => {
+                    this.comments = {
+                        ...this.comments, //spread all current comments
+                        data: [
+                            data, //new comment from server
+                            ...this.comments.data
+                        ]
+                    };
+                });
+        }
+    },
+
+    computed: {
+        isAuth() {
+            return __auth();
         }
     }
 };
