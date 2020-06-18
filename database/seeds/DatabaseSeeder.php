@@ -46,14 +46,14 @@ class DatabaseSeeder extends Seeder
             'channel_id' => $channel2->id
         ]);
 
-        factory(Comment::class)->create([
+        factory(Comment::class, 50)->create([
 
             'video_id' => $video->id
         ]);
 
         $comment = Comment::first();
 
-        factory(Comment::class, 50)->create([
+        factory(Comment::class, 10)->create([
             'video_id' => $video->id,
             'comment_id' => $comment->id,
         ]);

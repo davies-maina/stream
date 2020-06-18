@@ -4,12 +4,14 @@ namespace Stream;
 
 use Stream\User;
 use Stream\Video;
-use Stream\Comment;
+
 
 
 
 class Comment extends Model
 {
+
+    protected $with = ['user']; //eager load user who created comment
     public function video()
     {
 
@@ -25,6 +27,6 @@ class Comment extends Model
     public function replies()
     {
 
-        return $this->hasMany(Comment::Class, 'comment_id')->whereNotNull('comment_id');
+        return $this->hasMany(Comment::class, 'comment_id')->whereNotNull('comment_id');
     }
 }
