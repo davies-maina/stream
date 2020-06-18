@@ -28,6 +28,7 @@ Route::get('videos/{video}', [VideoController::class, 'show']);
 Route::put('/video/{video}', 'VideoController@updateviews');
 
 Route::get('videos/{video}/comments', 'CommentController@index');
+Route::get('comments/{comment}/replies', 'CommentController@show');
 
 Route::put('/video/{video}/update', 'VideoController@updatevideo')->middleware(['auth'])->name('updatevideodetails');
 

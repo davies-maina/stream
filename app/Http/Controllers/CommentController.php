@@ -3,6 +3,7 @@
 namespace Stream\Http\Controllers;
 
 use Stream\Video;
+use Stream\Comment;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -18,5 +19,11 @@ class CommentController extends Controller
         return response()->json($comments); */
 
         return $video->comments()->paginate(5);
+    }
+
+    public function show(Comment $comment)
+    {
+
+        return $comment->replies()->paginate(5);
     }
 }

@@ -12,6 +12,7 @@ class Comment extends Model
 {
 
     protected $with = ['user']; //eager load user who created comment
+    protected $appends = ['repliesCount']; //laravel computed properties
     public function video()
     {
 
@@ -28,5 +29,11 @@ class Comment extends Model
     {
 
         return $this->hasMany(Comment::class, 'comment_id')->whereNotNull('comment_id');
+    }
+
+    public function getRepliesCountAttribute()
+    {
+
+        return $this->replies()->count();
     }
 }
