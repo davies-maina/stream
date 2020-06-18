@@ -24,6 +24,11 @@
                 <small>
                     {{ comment.body }}
                 </small>
+                <votes
+                    :initialvotes="comment.votes"
+                    :entityid="comment.id"
+                    :entityowner="comment.user.id"
+                ></votes>
 
                 <replies :comment="comment"></replies>
             </div>
@@ -45,11 +50,13 @@
 <script>
 import Avatar from "vue-avatar";
 import replies from "./Replies";
+import votes from "./Vote";
 export default {
     props: ["video"],
     components: {
         Avatar,
-        replies
+        replies,
+        votes
     },
     mounted() {
         this.getComments();

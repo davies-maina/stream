@@ -3067,6 +3067,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_avatar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-avatar */ "./node_modules/vue-avatar/dist/vue-avatar.min.js");
 /* harmony import */ var vue_avatar__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_avatar__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _Replies__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Replies */ "./resources/js/components/Replies.vue");
+/* harmony import */ var _Vote__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Vote */ "./resources/js/components/Vote.vue");
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -3125,13 +3126,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ["video"],
   components: {
     Avatar: vue_avatar__WEBPACK_IMPORTED_MODULE_0___default.a,
-    replies: _Replies__WEBPACK_IMPORTED_MODULE_1__["default"]
+    replies: _Replies__WEBPACK_IMPORTED_MODULE_1__["default"],
+    votes: _Vote__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   mounted: function mounted() {
     this.getComments();
@@ -3186,6 +3194,11 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+//
+//
+//
+//
+//
 //
 //
 //
@@ -80638,6 +80651,14 @@ var render = function() {
                   )
                 ]),
                 _vm._v(" "),
+                _c("votes", {
+                  attrs: {
+                    initialvotes: comment.votes,
+                    entityid: comment.id,
+                    entityowner: comment.user.id
+                  }
+                }),
+                _vm._v(" "),
                 _c("replies", { attrs: { comment: comment } })
               ],
               1
@@ -80707,27 +80728,40 @@ var render = function() {
       _vm._m(0),
       _vm._v(" "),
       _vm._l(_vm.replies.data, function(reply) {
-        return _c("div", { staticClass: "media mt-3" }, [
-          _c(
-            "a",
-            { staticClass: "mr-3", attrs: { href: "#" } },
-            [
-              _c("avatar", {
-                staticClass: "mr-3",
-                attrs: { username: reply.user.name, size: 30 }
-              })
-            ],
-            1
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "media-body" }, [
-            _c("h6", { staticClass: "mt-0" }, [
-              _vm._v(_vm._s(reply.user.name))
+        return _c(
+          "div",
+          { staticClass: "media mt-3" },
+          [
+            _c(
+              "a",
+              { staticClass: "mr-3", attrs: { href: "#" } },
+              [
+                _c("avatar", {
+                  staticClass: "mr-3",
+                  attrs: { username: reply.user.name, size: 30 }
+                })
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "media-body" }, [
+              _c("h6", { staticClass: "mt-0" }, [
+                _vm._v(_vm._s(reply.user.name))
+              ]),
+              _vm._v(" "),
+              _c("small", [_vm._v(_vm._s(reply.body))])
             ]),
             _vm._v(" "),
-            _c("small", [_vm._v(_vm._s(reply.body))])
-          ])
-        ])
+            _c("votes", {
+              attrs: {
+                initialvotes: reply.votes,
+                entityid: reply.id,
+                entityowner: reply.user.id
+              }
+            })
+          ],
+          1
+        )
       }),
       _vm._v(" "),
       _vm.comment.repliesCount > 0 && _vm.replies.next_page_url

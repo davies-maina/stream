@@ -18,6 +18,11 @@
                 <h6 class="mt-0">{{ reply.user.name }}</h6>
                 <small>{{ reply.body }}</small>
             </div>
+            <votes
+                :initialvotes="reply.votes"
+                :entityid="reply.id"
+                :entityowner="reply.user.id"
+            ></votes>
         </div>
         <div
             class="text-center"
