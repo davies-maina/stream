@@ -94,6 +94,64 @@
                 
                 </div>
             </div>
+
+            @if ($channel->videos()->count()>0)
+                 <div class="card">
+                <div class="card-header d-flex justify-content-center">
+                    All videos for {{$channel->name}}
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                
+                                <th>Title</th>
+                                <th>Views</th>
+                                <th>Status</th>
+                                <th>Image</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                           
+                            @foreach ($videos as $video)
+                                <tr>
+                                
+                                <td>{{$video->title}}</td>
+                                <td>{{$video->views}}</td>
+                                @if ($video->percentage===100)
+                                    <td>Live</td>
+                                @else
+                                   <td>In processing</td> 
+                                @endif
+                                    <td>
+                                <img src="{{$video->thumbnail}}" width="50px" height="50px">
+                                </td>
+                                <td>
+                                @if ($video->percentage===100)
+                                    <a href="{{route('showvideo',$video->id)}}" class="btn btn-sm btn-dark">
+                                        View
+                                    </a>
+                                @else
+                                    
+                                @endif
+                                </td>
+                                   
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div class="row justify-content-center">
+                        {{$videos->links()}}
+                    </div>
+                </div>
+            </div>  
+            @else
+            <div class="justify-content-center">
+                <p class="headline">No videos uploaded by {{$channel->name}}</p>
+            </div>
+            @endif
+            
         </div>
     </div>
 </div>

@@ -3107,20 +3107,37 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ["comment"],
+  props: ["comment", "video"],
   components: {
     replies: _Replies__WEBPACK_IMPORTED_MODULE_0__["default"],
     Avatar: vue_avatar__WEBPACK_IMPORTED_MODULE_1___default.a
   },
   data: function data() {
     return {
-      addingRep: false
+      addingRep: false,
+      reply: ""
     };
+  },
+  methods: {
+    addReply: function addReply() {
+      var _this = this;
+
+      if (!this.reply) return;
+      axios.post("/comments/".concat(this.video.id), {
+        body: this.reply,
+        comment_id: this.comment.id
+      }).then(function (_ref) {
+        var data = _ref.data;
+
+        _this.$refs.replies.addReply(data);
+
+        _this.reply = "";
+        _this.addingRep = false;
+      });
+    }
   }
 });
 
@@ -3151,6 +3168,7 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+//
 //
 //
 //
@@ -3230,6 +3248,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           //spread all current comments
           data: [data].concat(_toConsumableArray(_this2.comments.data))
         });
+        _this2.newcomment = "";
       });
     }
   },
@@ -3322,6 +3341,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           data: [].concat(_toConsumableArray(_this.replies.data), _toConsumableArray(data.data))
         });
         /* console.log(data); */
+      });
+    },
+    addReply: function addReply(reply) {
+      this.replies = _objectSpread({}, this.replies, {
+        data: [reply].concat(_toConsumableArray(this.replies.data))
       });
     }
   }
@@ -80742,25 +80766,36 @@ var render = function() {
           _vm.addingRep
             ? _c("div", { staticClass: "form-inline my-4 w-full" }, [
                 _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.reply,
+                      expression: "reply"
+                    }
+                  ],
                   staticClass: "form-control form-control-sm w-80",
-                  attrs: { type: "text" }
+                  attrs: { type: "text" },
+                  domProps: { value: _vm.reply },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.reply = $event.target.value
+                    }
+                  }
                 }),
                 _vm._v(" "),
                 _c(
                   "button",
-                  {
-                    staticClass: "btn btn-sm ",
-                    class: {
-                      "btn-default": !_vm.addingRep,
-                      "btn-primary": _vm.addingRep
-                    }
-                  },
+                  { staticClass: "btn btn-sm ", on: { click: _vm.addReply } },
                   [_c("small", [_vm._v("Add reply")])]
                 )
               ])
             : _vm._e(),
           _vm._v(" "),
-          _c("replies", { attrs: { comment: _vm.comment } })
+          _c("replies", { ref: "replies", attrs: { comment: _vm.comment } })
         ],
         1
       )
@@ -80827,7 +80862,10 @@ var render = function() {
         : _vm._e(),
       _vm._v(" "),
       _vm._l(_vm.comments.data, function(comment) {
-        return _c("comment", { key: comment.id, attrs: { comment: comment } })
+        return _c("comment", {
+          key: comment.id,
+          attrs: { comment: comment, video: _vm.video }
+        })
       }),
       _vm._v(" "),
       _c("div", { staticClass: "text-center" }, [

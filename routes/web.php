@@ -23,7 +23,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::resource('channels', 'ChannelController');
 
-Route::get('videos/{video}', [VideoController::class, 'show']);
+Route::get('videos/{video}', [VideoController::class, 'show'])->name('showvideo');
 
 Route::put('/video/{video}', 'VideoController@updateviews');
 

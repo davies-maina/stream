@@ -23,19 +23,17 @@
                 </button>
             </div>
             <div class="form-inline my-4 w-full" v-if="addingRep">
-                <input type="text" class="form-control form-control-sm w-80" />
-                <button
-                    class="btn btn-sm "
-                    :class="{
-                        'btn-default': !addingRep,
-                        'btn-primary': addingRep
-                    }"
-                >
+                <input
+                    type="text"
+                    v-model="reply"
+                    class="form-control form-control-sm w-80"
+                />
+                <button class="btn btn-sm " @click="addReply">
                     <small>Add reply</small>
                 </button>
             </div>
 
-            <replies :comment="comment"></replies>
+            <replies :comment="comment" ref="replies"></replies>
         </div>
     </div>
 </template>
@@ -44,15 +42,32 @@
 import replies from "./Replies";
 import Avatar from "vue-avatar";
 export default {
-    props: ["comment"],
+    props: ["comment", "video"],
     components: {
         replies,
         Avatar
     },
     data() {
         return {
-            addingRep: false
+            addingRep: false,
+            reply: ""
         };
+    },
+
+    methods: {
+        addReply() {
+            if (!this.reply) return;
+            axios
+                .post(`/comments/${this.video.id}`, {
+                    body: this.reply,
+                    comment_id: this.comment.id
+                })
+                .then(({ data }) => {
+                    this.$refs.replies.addReply(data);
+                    this.reply = "";
+                    this.addingRep = false;
+                });
+        }
     }
 };
 </script>

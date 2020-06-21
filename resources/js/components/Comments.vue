@@ -15,6 +15,7 @@
             v-for="comment in comments.data"
             :key="comment.id"
             :comment="comment"
+            :video="video"
         ></comment>
 
         <div class="text-center">
@@ -81,6 +82,7 @@ export default {
                             ...this.comments.data
                         ]
                     };
+                    this.newcomment = "";
                 });
         }
     },
